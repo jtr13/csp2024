@@ -1,5 +1,7 @@
 # Workshop materials for CSP 2024 short course
 
+Workshop participants: It was a pleasure to teach you! Please feel free to reach out to me by email with any questions. 
+
 ## SC02: Effective Graphs with ggplot2
 
 *Instructor: Joyce Robbins, Columbia University*
