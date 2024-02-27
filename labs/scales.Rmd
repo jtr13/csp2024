@@ -1,0 +1,134 @@
+---
+title: "Scales"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+```
+
+## Problematic y-axis
+
+```{r}
+library(tidyverse)
+ggplot(mtcars, aes(x = hp)) +
+  geom_histogram(breaks = seq(0, 400, 50),
+                 color = "blue", fill = "cornflowerblue")
+```
+
+## Change scale breaks
+
+```{r}
+ggplot(mtcars, aes(x = hp)) +
+  geom_histogram(breaks = seq(0, 400, 50),
+                 color = "blue", fill = "cornflowerblue") +
+  scale_y_continuous(breaks = seq(0, 10, 2))
+```
+
+## Change axis limits
+
+```{r}
+ggplot(mtcars, aes(x = hp)) +
+  geom_histogram(breaks = seq(0, 400, 50),
+                 color = "blue", fill = "cornflowerblue") +
+  scale_y_continuous(limits = c(0, 15))
+```
+
+## Problematic tick mark labels
+
+```{r}
+ggplot(mtcars, aes(x = factor(am), y = mpg)) + 
+  geom_boxplot()
+```
+
+
+## Change tick mark labels
+
+```{r}
+ggplot(mtcars, aes(x = factor(am), y = mpg)) + 
+  geom_boxplot() + 
+  scale_x_discrete(name = "transmission type",
+                   labels = c("0" = "automatic", "1" = "manual"))
+```
+
+## Discrete vs. continuous scales (pitfall alert)
+
+```{r}
+#| warning: true
+#| error: true
+ggplot(mtcars, aes(x = factor(am), y = mpg)) + 
+  geom_boxplot() + 
+  scale_x_continuous(name = "transmission type",
+                   labels = c("0" = "automatic", "1" = "manual"))
+```
+
+
+## Discrete vs. continuous scales (pitfall alert)
+
+```{r}
+#| warning: true
+#| error: true
+ggplot(mtcars, aes(x = factor(am), y = mpg)) + 
+  geom_boxplot() + 
+  scale_y_discrete(limits = c(0, 40))
+
+```
+
+## Discrete color scales (manual)
+
+```{r}
+ggplot(mtcars, aes(x = wt, y = mpg, color = factor(am))) +
+  geom_point() +
+  scale_color_manual(values = c("#FF8146", "#009BFF"))
+```
+
+## Discrete color scales (prebuilt)
+
+```{r}
+ggplot(mtcars, aes(x = wt, y = mpg, color = factor(am))) +
+  geom_point() +
+  scale_color_brewer(palette = "Set1")
+```
+
+## Discrete color scales (prebuilt)
+
+```{r}
+library(ggthemes)
+ggplot(mtcars, aes(x = wt, y = mpg, color = factor(am))) +
+  geom_point() +
+  scale_color_colorblind()
+```
+
+## Mixing up color and fill
+
+```{r}
+ggplot(mtcars, aes(x = wt, y = mpg,
+                   color = factor(am))) +
+  geom_point() +
+  scale_fill_manual(values = c("orange", "black"))
+```
+
+## Coordinate systems
+
+```{r}
+ggplot(mtcars, aes(x = mpg, y = factor(gear))) +
+  geom_boxplot() +
+  coord_flip()
+```
+
+## ... but scales stay with original mappings
+
+```{r}
+ggplot(mtcars, aes(x = mpg, y = factor(gear))) + geom_boxplot() + 
+  scale_x_continuous(name = "Miles per gallon") + 
+  coord_flip()
+```
+
+## Better
+
+```{r}
+ggplot(mtcars, aes(x = factor(gear), y = mpg)) +
+  geom_boxplot() +
+  scale_y_continuous(name = "Miles per gallon")
+```
+

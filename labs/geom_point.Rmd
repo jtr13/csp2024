@@ -1,0 +1,39 @@
+---
+title: "geom_point"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+```
+
+# SCATTERPLOTS
+
+## mtcars
+
+```{r}
+library(tidyverse)
+ggplot(mtcars, aes(x = wt, y = mpg)) + 
+  geom_point()
+```
+
+## Scatterplot with color
+
+What's wrong?
+
+```{r}
+ggplot(mtcars, aes(x = wt, y = mpg, color = am)) + 
+  geom_point()
+```
+
+
+## Scatterplot with color
+
+```{r}
+ggplot(mtcars, aes(x = wt, y = mpg, color = factor(am))) + 
+  geom_point()
+```
+
+## EXERCISE
+
+Draw scatterplots of appropriate variables from "countries2012.csv". Color by continent.

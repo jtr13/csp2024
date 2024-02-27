@@ -1,0 +1,78 @@
+---
+title: "pivot_longer"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+```
+
+## Problem: missing categorical column for mapping (color)
+
+```{r}
+# our data
+dfwide <- data.frame(id = c("car1", "car2", "car3"),
+                 city = c(19, 20, 29),
+                 hwy = c(24, 30, 35))
+```
+
+## pivot_longer
+
+```{r}
+library(tidyverse)
+pivot_longer(dfwide, cols = city:hwy)
+```
+
+## Choose new column names
+
+```{r}
+pivot_longer(dfwide, cols = city:hwy,
+             names_to = "roadtype", values_to = "mpg")
+```
+
+## Graph
+
+```{r}
+df <- pivot_longer(dfwide, cols = city:hwy,
+             names_to = "roadtype", values_to = "mpg")
+ggplot(df, aes(x = mpg, y = id, color = roadtype)) +
+  geom_point(size = 2) + 
+  theme_bw(16) +
+  theme(legend.position = "bottom",
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank())
+```
+
+
+## Exercise
+
+```{r}
+library(MASS)
+head(painters)
+```
+
+## Goal: create boxplots
+
+## EXERCISES
+
+1. Pivot the `painters` dataset to longer form. It should look like this:
+
+```
+#> # A tibble: 216 × 4
+#>    School Name       Skill       Score
+#>    <fct>  <chr>      <chr>       <int>
+#>  1 A      Da Udine   Composition    10
+#>  2 A      Da Udine   Drawing         8
+#>  3 A      Da Udine   Colour         16
+#>  4 A      Da Udine   Expression      3
+```
+
+```{r}
+library(MASS)
+head(painters)
+```
+
+2. Create boxplots with the new data frame.
+
+
+
