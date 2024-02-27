@@ -8,6 +8,16 @@ The morning half of the course is designed for complete beginners or those with 
 
 https://ww2.amstat.org/meetings/csp/2024/courses.cfm
 
+# Schedule
+
+Morning schedule
+
+![](morning_schedule.png)
+
+Afternoon schedule
+
+![](afternoon_schedule.png)
+
 # Resources
 
 [ggplot2 cheatsheet](https://rstudio.github.io/cheatsheets/data-visualization.pdf)
