@@ -1,0 +1,367 @@
+---
+title: "forcats (with solutions)"
+output: 
+  html_document:
+    self_contained: yes
+---
+
+```{r setup, include=FALSE, cache=FALSE}
+library(knitr)
+options(digits = 3, scipen = 999)
+opts_chunk$set(fig.align='center',
+               message = FALSE, warning = FALSE, echo = TRUE)
+```
+
+
+## Character vs factor data
+
+character data: plotted alphabetically
+
+factor data: plotted in order of factor levels
+
+```{r}
+library(tidyverse)
+df <- tibble(chardata = c("cold", "warm", "hot", "hot", "warm", "warm", "cold",
+                          "cold", "cold"), 
+    factordata = factor(c("cold", "warm", "hot", "hot", "warm", "warm", "cold",
+                          "cold", "cold"), levels = c("cold", "warm", "hot")))
+```
+
+
+
+```{r, echo = FALSE, fig.width = 8, fig.height = 3.5}
+mycolor <- "#002448"; myfill = "#7192E3"
+library(gridExtra)
+g1 <- ggplot(df, aes(chardata)) +
+  geom_bar(color = mycolor, fill = myfill) + 
+  ggtitle("Default: alphabetical order") +
+  xlab("Character variable") +
+  theme_grey(12)
+
+g2 <- ggplot(df, aes(factordata)) +
+  geom_bar(color = mycolor, fill = myfill) + 
+  ggtitle("Default: factor level order") +
+  xlab("Factor variable") +
+  theme_grey(12)
+grid.arrange(g1, g2, nrow = 1)
+```
+
+
+
+## Summary of useful **forcats** functions
+
+`fct_recode(x, ...)` -- change names of levels 
+
+`fct_inorder(x)` -- set level order of `x` to row order
+
+`fct_relevel(x, ...)` -- manually set the order of levels of `x` 
+
+`fct_reorder(x, y)` -- reorder `x` by `y`
+
+`fct_infreq(x)` -- order the levels of `x` by decreasing frequency
+
+`fct_rev(x)` -- reverse the order of factor levels of `x`
+
+
+## Recoding factor levels
+
+Not a good idea for recoding since the order of the factor levels must be matched. This is INCORRECT:
+
+```{r, echo = TRUE}
+df <- data.frame(name = factor(c("STAT-UN-1201", "STAT-GR-5702", "STAT-GR-5293")),
+                 enrollment = c(86, 172, 12))
+df2 <- df
+levels(df2$name) = c("Intro", "EDAV", "IMLV")
+df2
+```
+
+(Only use `levels()` to see the current levels.)
+
+## Recoding factor levels: `fct_recode()`
+
+A better approach:
+
+```{r}
+df$name <- fct_recode(df$name, Intro = "STAT-UN-1201", EDAV = "STAT-GR-5702",
+                      IMLV = "STAT-GR-5293")
+df
+```
+
+
+## Set factor level order to row order
+
+```{r}
+x <- factor(c("Jack", "Queen", "King", "Ace"))
+levels(x)
+fct_inorder(x)
+```
+
+
+## Using `fct_relevel()` to move levels to the beginning
+
+```{r}
+x <- c("A", "B", "C", "move1", "D", "E", "move2", "F")
+
+fct_relevel(x, "move1", "move2")
+```
+
+## Using `fct_relevel()` to move levels after an item (by position)
+
+```{r}
+x <- c("A", "B", "C", "move1", "D", "E", "move2", "F")
+
+fct_relevel(x, "move1", "move2", after = 4) # move after the fourth item
+```
+
+## Using `fct_relevel()` to move levels to the end
+
+```{r}
+x <- c("A", "B", "C", "move1", "D", "E", "move2", "F")
+
+fct_relevel(x, "move1", "move2", after = Inf)
+```
+
+
+## Set factor level to the order of another variable
+
+```{r}
+levels(iris$Species)
+  ggplot(iris, aes(x = Sepal.Width, y = fct_reorder(Species, Sepal.Width, median))) +
+  geom_boxplot()
+```
+
+
+## Order factor levels by reverse frequency count
+
+```{r}
+x <- factor(c("Jack", "Queen", "King", "Ace", "Queen", "King", "King"))
+levels(x)
+fct_infreq(x)
+```
+
+
+## Binned data
+
+```{r}
+df <- data.frame(quarter = factor(c("Q1", "Q2", "Q3", "Q4")),
+                 sales = c(213, 125, 421, 315))
+df
+levels(df$quarter)
+```
+
+## Binned, ordinal data, correct level order
+
+```{r}
+mycolor <- "#002448"; myfill = "#7192E3"
+ggplot(df, aes(x = quarter, y = sales)) + 
+  geom_col(color = mycolor, fill= myfill) +
+  theme_grey(16)
+```
+
+
+## Ex. 1 
+
+INCORRECT
+
+```{r}
+df <- data.frame(temperature = factor(c("cold", "warm", "hot")),
+                 count = c(15, 5, 22))
+
+ggplot(df, aes(x = temperature, y = count)) +
+  geom_col(color = mycolor, fill = myfill) +
+  theme_grey(16)
+```
+
+
+
+## Ex. 1 solution
+
+Binned, ordinal data, levels out of order
+
+```{r}
+# SOLUTION
+df <- data.frame(temperature = factor(c("cold", "warm", "hot")),
+                 count = c(15, 5, 22))
+
+# row order is correct (think: factor in ROW order)
+ggplot(df, aes(x = fct_inorder(temperature), y = count)) +
+  geom_col(color = mycolor, fill = myfill) +
+  theme_grey(16)
+```
+
+
+## Ex. 2
+
+INCORRECT
+
+```{r, echo = FALSE}
+Births2015 <- tibble(MotherAge = c("15-19 years", "20-24 years", "25-29 years", "30-34 years", "35-39 years", 
+                                   "40-44 years", "45-49 years", "50 years and over", "Under 15 years"),
+                     Num = c(229.715, 850.509, 1152.311, 1094.693, 527.996, 111.848, 8.171, .754, 2.5))
+
+ggplot(Births2015, aes(MotherAge, Num)) + 
+  geom_col(color = mycolor, fill = myfill) + 
+  ggtitle("United States Births, 2015", subtitle = "in thousands") +
+  scale_y_continuous(breaks = seq(0, 1250, 250)) +
+  coord_flip() +
+  theme_grey(16)
+```
+
+## Ex. 2 solution
+
+Binned, ordinal, one level out of place
+
+`fct_relevel()` can be used to set the correct order
+
+
+```{r}
+ggplot(Births2015,
+       aes(x = Num, y = fct_relevel(MotherAge, "Under 15years"))) +
+  geom_col(color = mycolor, fill = myfill) +
+  scale_x_continuous(breaks = seq(0, 1250, 250)) +
+  labs(title = "United States Births, 2015",
+       subtitle = "in thousands", y = NULL)
+```
+
+## Ex. 3
+
+INCORRECT
+
+```{r}
+pack1 <- data.frame(color = c("blue", "brown", "green", "orange", "red", "yellow"),
+  count = c(13, 7, 12, 9, 7, 8))
+
+ggplot(pack1, aes(x = color, y = count)) + 
+  geom_col() +
+  theme_grey(16)
+```
+
+
+## Ex. 3 solution
+
+Binned, nominal, vertical bars
+
+Order bars by frequency count using `fct_reorder()` (or `reorder()`)
+
+```{r}
+# SOLUTION
+ggplot(pack1, aes(x = fct_reorder(color, count, .desc = TRUE), y = count)) + 
+  geom_col() +
+  theme_grey(16)
+```
+
+## Ex. 4
+
+INCORRECT
+
+```{r}
+ggplot(pack1, aes(x = count, y = color)) + 
+  geom_col() + 
+  theme_grey(16)
+```
+
+## Ex. 4 solution
+
+Binned, nominal (horizontal bars)
+
+```{r}
+# SOLUTION
+ggplot(pack1, aes(x = count, y = fct_reorder(color, count))) + 
+  geom_col() + 
+  theme_grey(16)
+```
+
+
+## Ex. 5
+
+INCORRECT
+
+```{r}
+df <- tibble(temperature = factor(c("cold", "warm", "hot", "hot", "warm",
+                                    "warm", "cold", "cold", "cold")))
+ggplot(df, aes(x = temperature)) +
+  geom_bar() +
+  theme_grey(16)
+```
+
+
+## Ex. 5 solution
+
+Unbinned, ordinal, levels out of order
+
+Use `fct_relevel()` (as with binned, ordinal data)
+
+```{r}
+# SOLUTION
+df <- tibble(temperature = factor(c("cold", "warm", "hot", "hot", "warm",
+                                    "warm", "cold", "cold", "cold")))
+
+ggplot(df, aes(fct_relevel(temperature, "warm", after = 1))) +
+  geom_bar() +
+  theme_grey(16)
+```
+
+## Ex. 6
+
+```{r, echo = FALSE}
+colors <- c("blue", "orange", "green", "yellow", "red", "brown")
+# source of probabilities: https://blogs.sas.com/content/iml/2017/02/20/proportion-of-colors-mandms.html
+probs2008 <- c(.24, .2, .16, .14, .13, .13)
+df <- data.frame(mmcolor = sample(colors, 100, prob = probs2008, replace = TRUE))
+```
+
+```{r}
+dim(df)
+head(df, 10)
+```
+
+INCORRECT
+
+```{r}
+ggplot(df, aes(mmcolor)) + 
+  geom_bar() +
+  theme_grey(16)
+```
+
+## Ex. 6 solution
+
+Unbinned, nominal data
+
+`fct_infreq()`  (default is decreasing order of frequency)
+
+Vertical bars:
+
+```{r}
+# SOLUTION
+ggplot(df, aes(fct_infreq(mmcolor))) + 
+  geom_bar() +
+  theme_grey(16)
+```
+
+
+## Ex. 7
+
+INCORRECT
+
+```{r}
+ggplot(df, aes(y = mmcolor)) + 
+  geom_bar() +
+  theme_grey(16)
+```
+
+
+## Ex. 7 solution
+
+Unbinned, nominal data
+
+`fct_rev(fct_infreq())`
+
+Horizontal bars:
+
+```{r}
+# SOLUTION
+ggplot(df, aes(y = fct_rev(fct_infreq(mmcolor)))) + 
+  geom_bar() +
+  theme_grey(16)
+```
+

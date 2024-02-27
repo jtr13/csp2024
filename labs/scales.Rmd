@@ -1,15 +1,18 @@
 ---
 title: "Scales"
-output: html_document
+output: 
+  html_document:
+    self_contained: false
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+knitr::opts_chunk$set(echo = TRUE, error = TRUE,
+                      dev = "svg")
 ```
 
 ## Problematic y-axis
 
-```{r}
+```{r figure1}
 library(tidyverse)
 ggplot(mtcars, aes(x = hp)) +
   geom_histogram(breaks = seq(0, 400, 50),
@@ -22,6 +25,7 @@ ggplot(mtcars, aes(x = hp)) +
 ggplot(mtcars, aes(x = hp)) +
   geom_histogram(breaks = seq(0, 400, 50),
                  color = "blue", fill = "cornflowerblue") +
+  scale_x_continuous(breaks = seq(0, 400, 50)) +
   scale_y_continuous(breaks = seq(0, 10, 2))
 ```
 
@@ -131,4 +135,5 @@ ggplot(mtcars, aes(x = factor(gear), y = mpg)) +
   geom_boxplot() +
   scale_y_continuous(name = "Miles per gallon")
 ```
+
 

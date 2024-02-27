@@ -1,0 +1,146 @@
+---
+title: "Facets"
+output: 
+  html_document:
+    self_contained: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+```
+
+## Agenda
+
+* Basic faceting in `ggplot2`
+  
+* When to free scales
+
+* Getting data in the right form
+
+* Plotting one variable per panel
+
+* Design decisions with multiple variables
+
+
+## Without faceting
+
+```{r}
+library(tidyverse)
+g <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) +
+  geom_point()
+g
+```
+
+## Facet on one variable with `facet_wrap()`
+
+facet "on" Species
+
+```{r}
+g +
+  facet_wrap(~Species)
+```
+
+## Faceting in ggplot2
+
+Each panel represents one categorical group / levels of a factor (type can be factor or character or integer)
+
+```{r}
+glimpse(iris)
+```
+
+
+## Change the layout with `nrow, ncol`
+
+```{r}
+g +
+  facet_wrap(~Species, ncol = 1)
+```
+
+## Add regression lines
+
+
+```{r}
+g +
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~Species)
+```
+
+## Facet on two (categorical) variables with `facet_grid()`
+
+```{r}
+ggplot(mtcars, aes(hp,mpg)) +
+  geom_point() +
+  facet_grid(cyl~gear)
+```
+
+## Label variables (in addition to factor levels)
+
+```{r}
+ggplot(mtcars, aes(hp, mpg)) +
+  geom_point() +
+  facet_grid(cyl~gear, labeller = label_both)
+```
+
+
+## Cleveland dot plots
+
+Note that y-axis is discrete
+
+```{r}
+g <- mtcars |>
+  rownames_to_column("car") |>
+  ggplot(aes(mpg, reorder(car, mpg))) +
+  geom_point(color = "blue") +
+  ylab("") +
+  theme_bw() +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank())
+g
+```
+
+## Facet by gear
+
+```{r}
+g +
+  facet_grid(gear ~ ., labeller = label_both)
+```
+
+## "Free" the y scale with `scales = "free_y"`
+
+```{r}
+g +
+  facet_grid(gear ~ ., labeller = label_both,
+             scales = "free_y")
+```
+
+## Change panel heights with `space = "free_y"`
+
+```{r}
+g +
+  facet_grid(gear ~ ., labeller = label_both,
+             scales = "free_y", space = "free_y")
+```
+
+## In general, do not "free" numerical scales
+
+```{r}
+ggplot(iris, aes(Sepal.Length, Sepal.Width)) +
+  geom_point() +
+  facet_wrap(~Species, scales = "free")
+```
+
+incorrect
+
+## In general, do not "free" numerical scales
+
+```{r}
+ggplot(iris, aes(Sepal.Length, Sepal.Width)) +
+  geom_point() +
+  facet_wrap(~Species)
+```
+
+correct
+
+## EXERCISE
+
+Try faceting with `ggplot2movies` dataset
